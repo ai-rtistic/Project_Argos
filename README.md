@@ -71,4 +71,7 @@ Multiple Object Tracking: A Literature Review
 Real Time Pear Fruit Detection and Counting Using YOLOv4 Models and Deep SORT
 
 
-[Yolov5_DeepSort__Pytorch](https://github.com/mikel-brostrom/Yolov5_DeepSort_Pytorch)
+__GitHub__  
+[Yolov5_DeepSort__Pytorch - mikel-brostrom](https://github.com/mikel-brostrom/Yolov5_DeepSort_Pytorch)
+
+[Yolov5 - ultralytics](https://github.com/ultralytics/yolov5)
