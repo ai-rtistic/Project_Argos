@@ -18,7 +18,8 @@ python track.py --source supermarket.mp4 --yolo_weights yolov5/weights/crowdhuma
 
 우리가 하고자 task 에 맞춰  모든 class 를 분류하는 weight 말고  **사람만을 구별하는 weight** 사용 → 성능 향상
 
-→ 처음 사람이 탐지 됐을때
+→ 처음 사람이이 감지가 되서 Tentative 상태로 돌입이고, 이후에 사람이라는 충분한 증거를 얻으면 사람이 입장한 것으로 간주  
+ex.
 
 ```python
 안녕하세요! 9고객님 / 14:31:14.390320 / 9
