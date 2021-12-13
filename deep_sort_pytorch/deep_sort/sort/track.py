@@ -3,6 +3,11 @@
 from datetime import datetime
 import pandas as pd
 
+from gender_age_estimation.resnet_base import BottleNeck
+from gender_age_estimation.resnet_base import ResNet
+from gender_age_estimation.resnet_base import resnet50
+from .prediction import predict_age_gender
+
 class TrackState:
     """
     Enumeration type for the single target track state. Newly created tracks are
@@ -145,7 +150,7 @@ class Track:
         self.mean, self.covariance = kf.predict(self.mean, self.covariance)
         self.increment_age()
 
-    def update(self, kf, detection, class_id):
+    def update(self, kf, detection, class_id, f_idx=None, source=None): ### f_idx, source
         """Perform Kalman filter measurement update step and update the feature
         cache.
 
@@ -165,7 +170,45 @@ class Track:
 
         self.hits += 1
         self.time_since_update = 0
-        if self.state == TrackState.Tentative and self.hits >= self._n_init:
+
+        det = detection.to_tlbr()
+
+        # resnet model
+        if self.state == TrackState.Tentative and self.hits == self._n_init:
+            
+            print(f'입장 id : {self.track_id} / {datetime.now().time()}')
+            print(f'left bot X: {det[0]},left bot Y:{det[3]}, right top X:{det[2]}, right top Y:{det[1]} ') 
+            print(f'프레임 번호 : {f_idx}') ###
+        
+
+            ### resnet model  prediction
+            pred = predict_age_gender(source, f_idx, det[0], det[3], det[2], det[1])
+            gender = pred[0]
+            print(f'성별: {gender}')
+
+            age = pred[1]
+            print(f'나이 : {age}')
+
+            # dataframe
+            new_data = [{"person_id":self.track_id,
+                "entry_time": datetime.now().time(),
+                "exit_time":None,
+                "section_A_in":None,
+                "section_A_out":None,
+                "section_B_in":None,
+                "section_B_out":None,
+                "section_C_in":None,
+                "section_C_out":None,
+                "gender": gender,
+                "age": age}]
+            
+            df = pd.read_csv('dataframe/data.csv')
+            df = df.append(new_data,ignore_index=True)
+            df.to_csv('dataframe/data.csv', index=False)
+
+            self.state = TrackState.Confirmed
+
+        elif self.state == TrackState.Tentative and self.hits > self._n_init:
             self.state = TrackState.Confirmed
 
     def mark_missed(self):
@@ -184,7 +227,7 @@ class Track:
 
         elif self.time_since_update > self._max_age:
             self.state = TrackState.Deleted
-            print(f'{self.track_id}고객님, 안녕히 가세요! / {datetime.now().time()}')
+            print(f'퇴장! id: {self.track_id} / {datetime.now().time()}')
             df.loc[df["person_id"]==self.track_id,"exit_time"] = datetime.now().time()
 
         
@@ -204,16 +247,37 @@ class Track:
         return self.state == TrackState.Deleted
 
     # bboxes = [x1, y1, x2, y2]
-    # image_size = 384x640
-    # (650, 0), (900, 200)
+
     
     def in_placeA(self, coordinate):
-        placeA = (650, 0, 900, 200) # (x1, y1, x2, y2)
+        placeA = (270, 150, 1000, 450) # (x1, y1, x2, y2)
         x = coordinate[0]
         y = coordinate[1]
         
         if (x > placeA[0] and x < placeA[2]):
             if (y > placeA[1] and y < placeA[3]):
+                return True
+        else:
+            False
+
+    def in_placeB(self, coordinate):
+        placeB = (50, 480, 780, 840) # (x1, y1, x2, y2)
+        x = coordinate[0]
+        y = coordinate[1]
+        
+        if (x > placeB[0] and x < placeB[2]):
+            if (y > placeB[1] and y < placeB[3]):
+                return True
+        else:
+            False
+
+    def in_placeC(self, coordinate):
+        placeC = (900, 520, 1800, 900) # (x1, y1, x2, y2)
+        x = coordinate[0]
+        y = coordinate[1]
+        
+        if (x > placeC[0] and x < placeC[2]):
+            if (y > placeC[1] and y < placeC[3]):
                 return True
         else:
             False
@@ -225,24 +289,44 @@ class Track:
         
         if self.in_placeA(current_coordinate):
             self.current_locate = 1
+        elif self.in_placeB(current_coordinate):
+            self.current_locate = 2
+        elif self.in_placeC(current_coordinate):
+            self.current_locate = 3
         else:
             self.current_locate = 0
-            
+        
         if self.current_locate != self.before_locate:
-
+            
             # dataframe
             df = pd.read_csv('dataframe/data.csv')
 
-            if self.current_locate == 0:
-                print(f'{self.track_id}고객님 {self.before_locate}섹션 퇴장 / {datetime.now().time()}')
-                df.loc[df["person_id"]==self.track_id,"section_A_out"] = datetime.now().time()
-                
-            elif self.current_locate == 1:
+            if self.before_locate == 0 and self.current_locate == 1:
                 print(f'{self.track_id}고객님 {self.current_locate}섹션 입장 / {datetime.now().time()}')
                 df.loc[df["person_id"]==self.track_id,"section_A_in"] = datetime.now().time()
+
+            elif self.before_locate == 0 and self.current_locate == 2:
+                print(f'{self.track_id}고객님 {self.current_locate}섹션 입장 / {datetime.now().time()}')
+                df.loc[df["person_id"]==self.track_id,"section_B_in"] = datetime.now().time()
+
+            elif self.before_locate == 0 and self.current_locate == 3:
+                print(f'{self.track_id}고객님 {self.current_locate}섹션 입장 / {datetime.now().time()}')
+                df.loc[df["person_id"]==self.track_id,"section_C_in"] = datetime.now().time()
+
+            elif self.before_locate == 1 and self.current_locate == 0:
+                print(f'{self.track_id}고객님 {self.before_locate}섹션 퇴장 / {datetime.now().time()}')
+                df.loc[df["person_id"]==self.track_id,"section_A_out"] = datetime.now().time()
+
+            elif self.before_locate == 2 and self.current_locate == 0:
+                print(f'{self.track_id}고객님 {self.before_locate}섹션 퇴장 / {datetime.now().time()}')
+                df.loc[df["person_id"]==self.track_id,"section_B_out"] = datetime.now().time()
+
+            elif self.before_locate == 3 and self.current_locate == 0:
+                print(f'{self.track_id}고객님 {self.before_locate}섹션 퇴장 / {datetime.now().time()}')
+                df.loc[df["person_id"]==self.track_id,"section_C_out"] = datetime.now().time()
+                
+
             
             df.to_csv('dataframe/data.csv', index=False)
 
-
-    
-        self.before_locate = self.current_locate
+            self.before_locate = self.current_locate

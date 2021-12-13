@@ -6,6 +6,12 @@ from . import linear_assignment
 from . import iou_matching
 from .track import Track
 
+
+from gender_age_estimation.resnet_base import BottleNeck
+from gender_age_estimation.resnet_base import ResNet
+from gender_age_estimation.resnet_base import resnet50
+from .prediction import predict_age_gender
+
 from datetime import datetime
 import pandas as pd
 
@@ -62,7 +68,7 @@ class Tracker:
             track.increment_age()
             track.mark_missed()
 
-    def update(self, detections, classes):
+    def update(self, detections, classes, f_idx=None, source=None): ### f_idx, source 추가
         """Perform measurement update and track management.
 
         Parameters
@@ -78,11 +84,11 @@ class Tracker:
         # Update track set.
         for track_idx, detection_idx in matches:
             self.tracks[track_idx].update(
-                self.kf, detections[detection_idx], classes[detection_idx])
+                self.kf, detections[detection_idx], classes[detection_idx], f_idx, source)
         for track_idx in unmatched_tracks:
             self.tracks[track_idx].mark_missed()
         for detection_idx in unmatched_detections:
-            self._initiate_track(detections[detection_idx], classes[detection_idx].item())
+            self._initiate_track(detections[detection_idx], classes[detection_idx].item(), f_idx, source) ### f_idx 추가
         self.tracks = [t for t in self.tracks if not t.is_deleted()]
 
         # Update distance metric.
@@ -138,7 +144,7 @@ class Tracker:
         return matches, unmatched_tracks, unmatched_detections
 
     # detection = [x1, y1, w, h]
-    def _initiate_track(self, detection, class_id):
+    def _initiate_track(self, detection, class_id, f_idx=None, source=None):
         mean, covariance = self.kf.initiate(detection.to_xyah())
         
         det = detection.to_tlbr()
@@ -148,19 +154,6 @@ class Tracker:
             mean, covariance, self._next_id, class_id, self.n_init, self.max_age, start_location,
             detection.feature, ))
         
-        print(f'안녕하세요! {self._next_id}고객님 / {datetime.now().time()} / {len(self.tracks)}')
-
-        # dataframe
-        new_data = [{"person_id":self._next_id,
-            "entry_time": datetime.now().time(),
-            "exit_time":None,
-            "section_A_in":None,
-            "section_A_out":None}]
-
-        df = pd.read_csv('dataframe/data.csv')
-        df = df.append(new_data,ignore_index=True)
-        df.to_csv('dataframe/data.csv', index=False)
-
         
         self._next_id += 1
         

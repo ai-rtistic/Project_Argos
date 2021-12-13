@@ -22,7 +22,7 @@ class DeepSort(object):
         self.tracker = Tracker(
             metric, max_iou_distance=max_iou_distance, max_age=max_age, n_init=n_init)
 
-    def update(self, bbox_xywh, confidences, classes, ori_img, choose_bbox='yolo'):
+    def update(self, bbox_xywh, confidences, classes, ori_img, choose_bbox='yolo', f_idx=None, source=None): ###f_idx, source 추가
         self.height, self.width = ori_img.shape[:2]
         # generate detections
         features = self._get_features(bbox_xywh, ori_img)
@@ -36,7 +36,7 @@ class DeepSort(object):
 
         # update tracker
         self.tracker.predict()
-        self.tracker.update(detections, classes)
+        self.tracker.update(detections, classes, f_idx, source)
 
         # output bbox identities
         outputs = []

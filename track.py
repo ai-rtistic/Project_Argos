@@ -9,6 +9,10 @@ from yolov5.utils.torch_utils import select_device, time_sync
 from yolov5.utils.plots import Annotator, colors
 from deep_sort_pytorch.utils.parser import get_config
 from deep_sort_pytorch.deep_sort import DeepSort
+from gender_age_estimation.resnet_base import BottleNeck
+from gender_age_estimation.resnet_base import ResNet
+
+
 import argparse
 import os
 import platform
@@ -90,14 +94,22 @@ def detect(opt):
         "entry_time":None,
         "exit_time":None,
         "section_A_in":None,
-        "section_A_out":None}]
+        "section_A_out":None,
+        "section_B_in":None,
+        "section_B_out":None,
+        "section_C_in":None,
+        "section_C_out":None,
+        "gender":None,
+        "age":None}]
 
     df = pd.DataFrame(datas)
     df.to_csv('dataframe/data.csv', index=False)
 
     for frame_idx, (path, img, im0s, vid_cap) in enumerate(dataset):
         
-        cv2.rectangle(im0s, (650, 0), (900, 200), (255,0,0), 3)
+        cv2.rectangle(im0s, (270, 150), (1000, 450), (255,0,0), 3)
+        cv2.rectangle(im0s, (50, 480), (780, 840), (0,255,0), 3)
+        cv2.rectangle(im0s, (900, 520), (1800, 900), (0,255,255), 3)
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -106,7 +118,9 @@ def detect(opt):
 
 
         # Setting Section
-        # section A = (650, 0, 900, 200) # (x1, y1, x2, y2)
+        # section A = (270, 150, 1000, 450) # (x1, y1, x2, y2)
+        # section B = (50, 480, 780, 840) # (x1, y1, x2, y2)
+        # section C = (900, 520, 1800, 900) # (x1, y1, x2, y2)
         
         # Inference
         t1 = time_sync()
@@ -147,7 +161,7 @@ def detect(opt):
                 clss = det[:, 5]
 
                 # pass detections to deepsort
-                outputs, tracks = deepsort.update(xywhs.cpu(), confs.cpu(), clss.cpu(), im0, 'kf')
+                outputs, tracks = deepsort.update(xywhs.cpu(), confs.cpu(), clss.cpu(), im0, 'kf', frame_idx, source) ###frame_idx, source 추가
                 
                 # draw boxes for visualization
                 if len(outputs) > 0:
