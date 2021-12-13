@@ -82,12 +82,17 @@ example
 Data : 경기도 유명 쇼핑몰의 플리마켓 영상  
 
 
+<a href target='_blank'><img src='https://i.imgur.com/252toyA.gif' border='0'></a>
+
 ![](https://i.imgur.com/252toyA.gif)
 
 
 추출한 방문객 데이터 dataframe
 
 ![image](https://user-images.githubusercontent.com/84179578/145829108-5236c6ff-02de-4c90-8637-8fcae12d8c42.png)
+
+[Imgur](https://imgur.com/ciQepMo)
+
 
 
 
