@@ -82,7 +82,9 @@ example
 Data : 경기도 유명 쇼핑몰의 플리마켓 영상  
 
 
-<a href target='_blank'><img src='https://i.imgur.com/252toyA.gif' border='0'></a>
+
+
+<a href='https://imgur.com/ciQepMo' target='_blank'><img src='https://i.imgur.com/252toyA.gif' border='0'></a>
 
 ![](https://i.imgur.com/252toyA.gif)
 
