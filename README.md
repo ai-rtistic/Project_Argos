@@ -89,11 +89,11 @@ Data : 경기도 유명 쇼핑몰의 플리마켓 영상
 ![](https://i.imgur.com/252toyA.gif)
 
 
+<a href="https://imgbb.com/"><img src="https://i.ibb.co/mDc2SkX/ezgif-com-gif-maker-4.gif" alt="ezgif-com-gif-maker-4" border="0"></a><br /><a target='_blank' href='https://poetandpoem.com/Edward-Dyson/Unredeemed'>unredeemed lyrics</a><br />
+
 추출한 방문객 데이터 dataframe
 
 ![image](https://user-images.githubusercontent.com/84179578/145829108-5236c6ff-02de-4c90-8637-8fcae12d8c42.png)
-
-[Imgur](https://imgur.com/ciQepMo)
 
 
 
