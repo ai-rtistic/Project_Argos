@@ -79,16 +79,18 @@ example
 
 ## 구현 모델을  Real Data 에 적용
 
-Data : 경기도 유명 쇼핑몰의 플리마켓 영상  
+Data : 경기도 유명 쇼핑몰의 플리마켓 영상 
+
+### 방문객 데이터 추출
+
+![ezgif com-gif-maker (5)](https://user-images.githubusercontent.com/84179578/145836221-4951c41d-0876-4e0d-b294-7af2a5f8d565.gif)
+
+
+  
 
 
 
-
-<a href='https://imgur.com/ciQepMo' target='_blank'><img src='https://i.imgur.com/252toyA.gif' border='0'></a>
-
-
-
-추출한 방문객 데이터 dataframe
+### 추출한 방문객 데이터 dataframe
 
 ![image](https://user-images.githubusercontent.com/84179578/145829108-5236c6ff-02de-4c90-8637-8fcae12d8c42.png)
 
