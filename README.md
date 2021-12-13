@@ -1,7 +1,7 @@
 # Store Visitor Data Solution Project
 ## CCTV를 활용한 매장 방문자 행동 데이터 솔루션
 
-- 구현 영상
+- Test video 구현 영상  (supermarket.mp4)
 
 <a href='https://ifh.cc/v-ySbzKI' target='_blank'><img src='https://ifh.cc/g/ySbzKI.gif' border='0'></a>
 
@@ -22,8 +22,19 @@ python track.py --source supermarket.mp4 --yolo_weights yolov5/weights/crowdhuma
 ex.
 
 ```python
-안녕하세요! 9고객님 / 14:31:14.390320 / 9
+입장 id : 00  / 14:31:14.390320 
 ```
+→ 첫 등장 bbox 를 기준으로 해당 id의 사람의 성별과 나이를 예측  
+ex.
+
+```python
+id 00, 성별: male
+```
+
+```python
+id 00, 나이: 20-39
+```
+
 
 →  처음 탐지가 되면 Tentative 상태로 돌입, 이후에 사람이라는 충분한 증거를 얻지 못하면 바로 삭제
 
@@ -36,7 +47,7 @@ ex.
 → 탐지되고 있던 사람이 화면에서 일정 시간 (max age) 탐지되지 않으면 나간것으로 판단
 
 ```python
-00고객님, 안녕히 가세요! / 14:31:56.597224
+퇴장 id : 00 / 14:31:56.597224
 ```
 
 → 특정 구역 (화면에서 파란색 사각형 부분) 에 사람이 입장, 퇴장 할때
@@ -62,6 +73,25 @@ ex.
 
 example  
 ![image](https://user-images.githubusercontent.com/84179578/142957803-69d52bbb-103c-4d64-9892-1a01a050d818.png)
+
+
+----
+
+## 구현 모델을  Real Data 에 적용
+
+Data : 경기도 유명 쇼핑몰의 플리마켓 영상  
+
+
+![](https://i.imgur.com/252toyA.gif)
+
+
+추출한 방문객 데이터 dataframe
+
+![image](https://user-images.githubusercontent.com/84179578/145829108-5236c6ff-02de-4c90-8637-8fcae12d8c42.png)
+
+
+
+
 
 ----
 ## Reference
