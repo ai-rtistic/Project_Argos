@@ -177,17 +177,16 @@ class Track:
         if self.state == TrackState.Tentative and self.hits == self._n_init:
             
             print(f'입장 id : {self.track_id} / {datetime.now().time()}')
-            print(f'left bot X: {det[0]},left bot Y:{det[3]}, right top X:{det[2]}, right top Y:{det[1]} ') 
-            print(f'프레임 번호 : {f_idx}') ###
+
         
 
             ### resnet model  prediction
             pred = predict_age_gender(source, f_idx, det[0], det[3], det[2], det[1])
             gender = pred[0]
-            print(f'성별: {gender}')
+            print(f'id {self.track_id}, 성별: {gender}')
 
             age = pred[1]
-            print(f'나이 : {age}')
+            print(f'id {self.track_id, }나이 : {age}')
 
             # dataframe
             new_data = [{"person_id":self.track_id,
